@@ -4,9 +4,11 @@ import path from "path"
 import { Blockchain, RPC } from "./types"
 
 export const setupStore = async () => {
-    const rootPath = path.join("~", ".svinge")
+    const rootPath = path.join("./", ".svinge")
     
-    await mkdir(rootPath)
+    if(!existsSync(rootPath)) {
+        await mkdir(rootPath)
+    }
 
     const svingeFilePath = path.join(rootPath, "config.json")
 
@@ -19,7 +21,7 @@ export const setupStore = async () => {
 }
 
 export const store = async (chain: Blockchain, config: RPC[]) => {
-    const rootPath = path.join("~", ".svinge")
+    const rootPath = path.join("./", ".svinge")
     
     if(!existsSync(rootPath)) {
         await setupStore()
@@ -30,7 +32,7 @@ export const store = async (chain: Blockchain, config: RPC[]) => {
 }
 
 export const readStore = async (chain: Blockchain) => {
-    const rootPath = path.join("~", ".svinge", `${chain}.json`)
+    const rootPath = path.join("./", ".svinge", `${chain}.json`)
 
     if(!existsSync(rootPath)) {
         throw new Error("Data doesn't exist")
