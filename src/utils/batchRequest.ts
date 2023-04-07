@@ -3,6 +3,7 @@ import { RPC, RPCRequest } from "../types";
 import { calculateAvgResponse } from "./calculateRpcDetail";
 
 export const request = async (rpc: RPC, request: RPCRequest): Promise<{ rpc: RPC, result?: RPCRequest, error?: any }> => {
+    console.log("started", rpc.url)
     let requestClone: RPCRequest = {
         ...request,
         start: new Date()
@@ -28,6 +29,7 @@ export const request = async (rpc: RPC, request: RPCRequest): Promise<{ rpc: RPC
         requestClone.end = new Date()
         requestClone.result = data
         
+        console.log(data)
         rpc.responses.push(requestClone)
     
         rpc.avgResponse = calculateAvgResponse(rpc)

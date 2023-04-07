@@ -11,7 +11,7 @@ export const readConfig = async (rpcUrls: string[], blockchain: Blockchain) => {
             let rpcConfig = store.find(s => s.url.toLowerCase() === rpc)
     
             if (!rpcConfig) {
-                rpcConfig = defaultRPC(rpc)
+                rpcConfig = defaultRPC(rpc, blockchain)
             }
 
             rpcConfig.responses = rpcConfig.responses.map(response => {
@@ -26,6 +26,6 @@ export const readConfig = async (rpcUrls: string[], blockchain: Blockchain) => {
     
         return rpcs
     } catch (e) {
-        return rpcUrls.map(x => defaultRPC(x))
+        return rpcUrls.map(x => defaultRPC(x, blockchain))
     }
 }

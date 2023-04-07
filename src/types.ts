@@ -18,9 +18,9 @@ export interface RPC {
     weight: number
 }
 
-export const defaultRPC = (rpc: string) => ({
+export const defaultRPC = (rpc: string, chain: Blockchain) => ({
     avgResponse: 0,
-    blockchain: Blockchain.ETHEREUM,
+    blockchain: chain,
     failedRequest: 0,
     name: rpc,
     notSupportedMethods: [],
