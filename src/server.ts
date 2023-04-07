@@ -14,15 +14,19 @@ let solanaUrls = ["https://try-rpc.mainnet.solana.blockdaemon.tech", "https://ap
 let svingeSolana = Svinge.balanceSolana(solanaUrls)
 
 app.post("/eth", async (req, res) => {
-    let svinge = await svingePromise
-
-    const response = await svinge.request({
-        method: req.body.method,
-        params:req.body.params,
-        start: new Date()
-    })
-
-    res.status(200).send(response.result)
+    try {
+        let svinge = await svingePromise
+    
+        const response = await svinge.request({
+            method: req.body.method,
+            params:req.body.params,
+            start: new Date()
+        })
+    
+        res.status(200).send(response.result)
+    } catch (e) {
+        res.status(400).send(e)
+    }
 })
 
 app.post("/sol", async (req, res) => {
