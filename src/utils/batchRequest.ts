@@ -1,12 +1,47 @@
 import axios from "axios"
-import { RPC, RPCRequest } from "../types";
+import { readCache, storeCache } from "../store";
+import { CacheConfig, RPC, RPCRequest } from "../types";
 import { calculateAvgResponse } from "./calculateRpcDetail";
 
-export const request = async (rpc: RPC, request: RPCRequest): Promise<{ rpc: RPC, result?: RPCRequest, error?: any }> => {
+export const request = async (rpc: RPC, request: RPCRequest, cacheConfig?: CacheConfig): Promise<{ rpc: RPC, result?: RPCRequest, error?: any }> => {
     console.log("started", rpc.url)
     let requestClone: RPCRequest = {
         ...request,
         start: new Date()
+    }
+
+    let cache = await readCache(rpc.blockchain)
+
+    if(cacheConfig && cache[request.method] && cacheConfig.interval > (new Date().getTime() - new Date(cache[request.method].start).getTime())) {
+        let cached = cache[request.method]
+
+        let found = true;
+
+        if(cached.params.length != request.params.length) found = false
+        else {
+            for(let i = 0; i < cached.params.length; i++) {
+                if(request.params[i] === cached.params[i]) {
+                    found = true
+                } else {
+                    found = false;
+                    break
+                }
+            }
+        }
+        
+        
+        console.log("found => ", found, request.params,cached.params)
+
+        if(found) {
+            rpc.responses++
+            rpc.requestServed++
+            
+            return {
+                rpc: rpc,
+                result: cache[request.method],
+                error: undefined
+            }
+        }
     }
 
     try {        
@@ -28,9 +63,12 @@ export const request = async (rpc: RPC, request: RPCRequest): Promise<{ rpc: RPC
     
         requestClone.end = new Date()
         requestClone.result = data
-        
-        console.log(data)
-        rpc.responses.push(requestClone)
+
+        rpc.totalResponse += (requestClone.end.getTime() - requestClone.start.getTime())
+        rpc.responses++
+
+        cache[request.method] = requestClone
+        await storeCache(rpc.blockchain, cache)
     
         rpc.avgResponse = calculateAvgResponse(rpc)
         rpc.requestServed++
@@ -58,9 +96,9 @@ export const request = async (rpc: RPC, request: RPCRequest): Promise<{ rpc: RPC
     }
 }
 
-export const batchRequest = async (rpcs: RPC[], req: RPCRequest) => {
+export const batchRequest = async (rpcs: RPC[], req: RPCRequest, cache?: CacheConfig) => {
     const promises = rpcs.map(rpc => {
-        return request(rpc, req)
+        return request(rpc, req, cache)
     })
 
     const responses = await Promise.all(promises)

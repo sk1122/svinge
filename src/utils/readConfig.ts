@@ -13,13 +13,6 @@ export const readConfig = async (rpcUrls: string[], blockchain: Blockchain) => {
             if (!rpcConfig) {
                 rpcConfig = defaultRPC(rpc, blockchain)
             }
-
-            rpcConfig.responses = rpcConfig.responses.map(response => {
-                if(response.end) response.end = new Date(response.end)
-                response.start = new Date(response.start)
-
-                return response
-            })
     
             rpcs.push(rpcConfig)
         }

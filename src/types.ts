@@ -8,7 +8,8 @@ export interface RPC {
     requestServed: number
     requestServing: number
     avgResponse: number
-    responses: RPCRequest[]
+    totalResponse: number
+    responses: number
     notSupportedMethods: string[]
     url: string
     name: string
@@ -18,8 +19,19 @@ export interface RPC {
     weight: number
 }
 
+export interface CacheConfig {
+    interval: number
+    notSupportedMethods: string[]
+}
+
+export const defaultConfig = () => ({
+    interval: 0,
+    notSupportedMethods: []
+} as CacheConfig)
+
 export const defaultRPC = (rpc: string, chain: Blockchain) => ({
     avgResponse: 0,
+    totalResponse: 0,
     blockchain: chain,
     failedRequest: 0,
     name: rpc,
@@ -28,7 +40,7 @@ export const defaultRPC = (rpc: string, chain: Blockchain) => ({
     down: false,
     requestServed: 0,
     requestServing: 0,
-    responses: [],
+    responses: 0,
     weight: 0
 } as RPC)
 
@@ -39,3 +51,5 @@ export interface RPCRequest {
     start: Date
     end?: Date
 }
+
+export type Cache = { [key: string]: RPCRequest }

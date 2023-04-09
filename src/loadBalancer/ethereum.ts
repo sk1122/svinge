@@ -1,11 +1,11 @@
 import cron from 'node-cron'
 import { BaseLoadBalancer } from ".";
-import { Blockchain, RPC, RPCRequest } from "../types";
+import { Blockchain, CacheConfig, RPC, RPCRequest } from "../types";
 import { batchRequest } from "../utils/batchRequest";
 
 export class Ethereum extends BaseLoadBalancer {
-    constructor(rpcs: RPC[]) {
-        super(rpcs, Blockchain.ETHEREUM)
+    constructor(rpcs: RPC[], cache?: CacheConfig) {
+        super(rpcs, Blockchain.ETHEREUM, cache)
 
         this.checkRPCHealth()
     }

@@ -1,7 +1,7 @@
 import cron from 'node-cron'
 import { store } from '../store'
 
-import { Blockchain, defaultRPC, RPC, RPCRequest } from "../types"
+import { Blockchain, CacheConfig, defaultConfig, defaultRPC, RPC, RPCRequest } from "../types"
 import { batchRequest } from '../utils/batchRequest'
 
 export class BaseLoadBalancer {
@@ -9,10 +9,12 @@ export class BaseLoadBalancer {
     public blockchain: Blockchain = Blockchain.ETHEREUM
     public currentRPC: RPC = defaultRPC("", this.blockchain)
     public cronTask: cron.ScheduledTask | undefined = undefined
+    public cacheConfig: CacheConfig = defaultConfig()
 
-    constructor(rpcs: RPC[], blockchain: Blockchain) {
+    constructor(rpcs: RPC[], blockchain: Blockchain, cache?: CacheConfig) {
         this.rpcs = rpcs
         this.blockchain = blockchain
+        this.cacheConfig = cache ?? defaultConfig()
 
         // this.checkRPCHealth()
     }
@@ -54,7 +56,7 @@ export class BaseLoadBalancer {
         try {
             const rpc = this.nextRPC(request.method)
             
-            let response = await batchRequest([rpc], request)
+            let response = await batchRequest([rpc], request, this.cacheConfig)
             let previousRPCs: any = {}
     
             while(response[0].error) {
